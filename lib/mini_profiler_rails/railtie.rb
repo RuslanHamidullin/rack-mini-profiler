@@ -19,12 +19,12 @@ module Rack::MiniProfilerRails
 
     c.skip_paths ||= []
 
-    if Rails.env.development?
+    if Rails.env.development? || Rails.env.to_s == "new_staging"
       c.skip_paths << app.config.assets.prefix if app.respond_to? :assets
       c.skip_schema_queries = true
     end
 
-    unless Rails.env.development? || Rails.env.test?
+    unless Rails.env.development? || Rails.env.test? || Rails.env.to_s == "new_staging"
       c.authorization_mode = :whitelist
     end
 
@@ -43,7 +43,7 @@ module Rack::MiniProfilerRails
     # Quiet the SQL stack traces
     c.backtrace_remove = Rails.root.to_s + "/"
     c.backtrace_includes =  [/^\/?(app|config|lib|test)/]
-    c.skip_schema_queries = (Rails.env.development? || Rails.env.test?)
+    c.skip_schema_queries = (Rails.env.development? || Rails.env.test? || Rails.env.to_s == "new_staging")
 
     # Install the Middleware
     app.middleware.insert(0, Rack::MiniProfiler)
